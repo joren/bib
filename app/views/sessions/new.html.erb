@@ -1,0 +1,7 @@
+<div class="max-w-md mx-auto">
+  <% if user_signed_in? %>
+    Hi <%= current_user.name %>
+  <% else %>
+    <%= render Auth::LoginFormComponent.new %>
+  <% end %>
+</div>
