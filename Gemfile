@@ -45,6 +45,9 @@ gem "image_processing", "~> 1.2"
 # ViewComponents for component-based UI [https://viewcomponent.org/]
 gem "view_component"
 
+# EPUB parsing for metadata extraction [https://github.com/skoji/gepub]
+gem "gepub"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

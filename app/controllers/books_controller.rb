@@ -17,8 +17,8 @@ class BooksController < ApplicationController
     @book.file_size = @book.file.byte_size if @book.file.attached?
 
     if @book.save
-      # Extract metadata in background job (will be implemented in Feature 5)
-      # ExtractBookMetadataJob.perform_later(@book.id) if @book.epub?
+      # Extract metadata in background job for EPUBs
+      ExtractBookMetadataJob.perform_later(@book.id) if @book.epub?
       redirect_to books_path, notice: "Book uploaded successfully!"
     else
       render :new, status: :unprocessable_entity
