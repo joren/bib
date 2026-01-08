@@ -7,6 +7,16 @@ class BooksController < ApplicationController
     @book = Book.find(params[:id])
   end
 
+  def download
+    @book = Book.find(params[:id])
+
+    if @book.file.attached?
+      redirect_to rails_blob_path(@book.file, disposition: "attachment"), allow_other_host: true
+    else
+      redirect_to @book, alert: "File not found"
+    end
+  end
+
   def new
     @book = Book.new
   end

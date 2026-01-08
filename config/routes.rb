@@ -20,7 +20,11 @@ Rails.application.routes.draw do
   get "login_sent", to: "sessions#sent"
 
   # Books resource
-  resources :books, only: [:index, :show, :new, :create, :destroy]
+  resources :books, only: [:index, :show, :new, :create, :destroy] do
+    member do
+      get :download
+    end
+  end
 
   # Defines the root path route ("/")
   root "books#index"
