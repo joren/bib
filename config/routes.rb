@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Authentication routes
-  resource :session, only: [:new, :create, :destroy] do
+  resource :session, only: [ :new, :create, :destroy ] do
     get :sent, on: :collection
     get :verify, on: :collection
   end
@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   get "login_sent", to: "sessions#sent"
 
   # Books resource
-  resources :books, only: [:index, :show, :new, :create, :destroy] do
+  resources :books, only: [ :index, :show, :new, :create, :destroy ] do
     member do
       get :download
     end

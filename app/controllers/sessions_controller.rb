@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:new, :create, :verify, :sent]
+  skip_before_action :authenticate_user!, only: [ :new, :create, :verify, :sent ]
 
   def new
     # Show email input form
