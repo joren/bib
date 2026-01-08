@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Bib" %></title>
+    <title><%= content_for(:title) || "Bib - Family Library" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Bib">
@@ -23,8 +23,16 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="bg-gray-50 min-h-screen">
+    <% if user_signed_in? %>
+      <%= render Shared::HeaderComponent.new(current_user: current_user) %>
+    <% end %>
+
+    <main class="<%= user_signed_in? ? 'container mx-auto mt-24 px-5' : 'container mx-auto mt-12 px-5' %>">
+      <% flash.each do |type, message| %>
+        <%= render Shared::FlashComponent.new(type: type, message: message) %>
+      <% end %>
+
       <%= yield %>
     </main>
   </body>

@@ -1,0 +1,7 @@
+<div data-controller="dismissable"
+     class="<%= flash_classes %> border px-4 py-3 rounded mb-4 flex items-center justify-between"
+     role="alert">
+  <span><%= @message %></span>
+  <button data-action="click->dismissable#dismiss"
+          class="text-xl font-bold ml-4">&times;</button>
+</div>
