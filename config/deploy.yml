@@ -2,12 +2,12 @@
 service: bib
 
 # Name of the container image (use your-user/app-name on external registries).
-image: bib
+image: jorendg/bib
 
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - 162.55.172.28
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -20,9 +20,9 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-# proxy:
-#   ssl: true
-#   host: app.example.com
+proxy:
+  ssl: true
+  host: bib.joren.gent
 
 # Where you keep your container images.
 registry:
@@ -30,11 +30,11 @@ registry:
   server: localhost:5555
 
   # Needed for authenticated registries.
-  # username: your-user
+  #username: joren
 
   # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
+  #password:
+    #- KAMAL_GH_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
