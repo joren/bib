@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_08_074330) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_08_094258) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -56,18 +56,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_074330) do
     t.index ["title"], name: "index_books_on_title"
   end
 
-  create_table "login_tokens", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "expires_at", null: false
-    t.string "token_digest", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "used_at"
-    t.integer "user_id", null: false
-    t.index ["token_digest", "expires_at"], name: "index_login_tokens_on_token_digest_and_expires_at"
-    t.index ["token_digest"], name: "index_login_tokens_on_token_digest", unique: true
-    t.index ["user_id"], name: "index_login_tokens_on_user_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -79,5 +67,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_074330) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "login_tokens", "users"
 end

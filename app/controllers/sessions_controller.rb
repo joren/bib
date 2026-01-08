@@ -17,13 +17,11 @@ class SessionsController < ApplicationController
   end
 
   def verify
-    token = LoginToken.valid.find_by(token_digest: params[:token])
+    user = User.find_by_token_for(:login, params[:token])
 
-    if token&.valid_for_authentication?
-      token.mark_as_used!
-      token.user.update(last_sign_in_at: Time.current)
-
-      session[:user_id] = token.user.id
+    if user
+      user.update(last_sign_in_at: Time.current)
+      session[:user_id] = user.id
       redirect_to root_path, notice: "Successfully signed in!"
     else
       redirect_to new_session_path, alert: "Invalid or expired login link"
