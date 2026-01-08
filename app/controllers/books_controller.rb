@@ -1,6 +1,31 @@
 class BooksController < ApplicationController
   def index
-    @books = Book.recent.with_attached_file.with_attached_cover_image
+    @books = Book.all
+
+    # Search by title or author
+    if params[:query].present?
+      @books = @books.where(
+        "title LIKE :query OR author LIKE :query",
+        query: "%#{params[:query]}%"
+      )
+    end
+
+    # Filter by file type
+    if params[:type].present? && params[:type].in?(%w[epub pdf])
+      @books = @books.where(file_type: params[:type])
+    end
+
+    # Sort
+    @books = case params[:sort]
+    when "title"
+      @books.by_title
+    when "author"
+      @books.by_author
+    else
+      @books.recent
+    end
+
+    @books = @books.with_attached_file.with_attached_cover_image
   end
 
   def show
