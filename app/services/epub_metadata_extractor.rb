@@ -4,15 +4,15 @@ class EpubMetadataExtractor
   end
 
   def extract
-    epub = Gepub::Book.parse(@file_path)
+    epub = GEPUB::Book.parse(@file_path)
 
     {
       title: extract_title(epub),
       author: extract_author(epub),
       description: extract_description(epub),
-      publisher: epub.publisher,
+      publisher: epub.publisher&.to_s&.strip.presence,
       isbn: extract_isbn(epub),
-      language: epub.language || "en",
+      language: epub.language&.to_s&.strip.presence || "en",
       published_on: extract_date(epub)
     }.tap do |metadata|
       extract_cover_image(epub, metadata)
@@ -22,15 +22,15 @@ class EpubMetadataExtractor
   private
 
   def extract_title(epub)
-    epub.title&.strip.presence || "Untitled"
+    epub.title&.to_s&.strip.presence || "Untitled"
   end
 
   def extract_author(epub)
-    epub.creator&.strip.presence
+    epub.creator&.to_s&.strip.presence
   end
 
   def extract_description(epub)
-    epub.description&.strip.presence
+    epub.description&.to_s&.strip.presence
   end
 
   def extract_isbn(epub)
@@ -39,7 +39,7 @@ class EpubMetadataExtractor
   end
 
   def extract_date(epub)
-    date_string = epub.date
+    date_string = epub.date&.to_s
     return nil if date_string.blank?
 
     Date.parse(date_string)
