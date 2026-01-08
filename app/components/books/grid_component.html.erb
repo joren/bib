@@ -1,0 +1,5 @@
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+  <% @books.each do |book| %>
+    <%= render Books::CardComponent.new(book: book) %>
+  <% end %>
+</div>

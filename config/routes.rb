@@ -19,6 +19,9 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy"
   get "login_sent", to: "sessions#sent"
 
+  # Books resource
+  resources :books, only: [:index, :show, :new, :create, :destroy]
+
   # Defines the root path route ("/")
-  root "sessions#new"
+  root "books#index"
 end
