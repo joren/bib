@@ -6,7 +6,7 @@ class ExtractBookMetadataJob < ApplicationJob
     return unless book.epub? && book.file.attached?
 
     book.file.open do |file|
-      metadata = EpubMetadataExtractor.new(file.path).extract
+      metadata = EpubMetadataExtractor.new(file).extract
 
       # Extract cover separately
       cover_data = metadata.delete(:cover_image_data)
