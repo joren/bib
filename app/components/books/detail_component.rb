@@ -1,6 +1,11 @@
 class Books::DetailComponent < ViewComponent::Base
-  def initialize(book:)
+  def initialize(book:, current_user: nil)
     @book = book
+    @current_user = current_user
+  end
+
+  def owner?
+    @book.owned_by?(@current_user)
   end
 
   def cover_url

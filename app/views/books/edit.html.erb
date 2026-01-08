@@ -1,0 +1,7 @@
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold mb-8">Edit Book</h1>
+
+  <%= render Books::UploadFormComponent.new(book: @book) %>
+
+  <%= link_to "Cancel", @book, class: "text-blue-600 hover:text-blue-700 mt-4 inline-block" %>
+</div>

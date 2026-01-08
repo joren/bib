@@ -2,6 +2,8 @@ class Book < ApplicationRecord
   has_one_attached :file
   has_one_attached :cover_image
 
+  belongs_to :user, optional: true
+
   validates :title, presence: true
   validates :file_type, inclusion: { in: %w[epub pdf], allow_nil: true }
   validate :acceptable_file
@@ -26,6 +28,14 @@ class Book < ApplicationRecord
 
   def pdf?
     file_type == "pdf"
+  end
+
+  def owned_by?(user)
+    self.user_id == user&.id
+  end
+
+  def uploader_name
+    user&.email || "Unknown"
   end
 
   private

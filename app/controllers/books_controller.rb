@@ -1,4 +1,7 @@
 class BooksController < ApplicationController
+  before_action :set_book, only: [:show, :download, :edit, :update, :destroy]
+  before_action :authorize_owner!, only: [:edit, :update, :destroy]
+
   def index
     @books = Book.all
 
@@ -29,12 +32,9 @@ class BooksController < ApplicationController
   end
 
   def show
-    @book = Book.find(params[:id])
   end
 
   def download
-    @book = Book.find(params[:id])
-
     if @book.file.attached?
       redirect_to rails_blob_path(@book.file, disposition: "attachment"), allow_other_host: true
     else
@@ -47,7 +47,7 @@ class BooksController < ApplicationController
   end
 
   def create
-    @book = Book.new(book_params)
+    @book = current_user.books.build(book_params)
     @book.file_type = detect_file_type(@book.file)
     @book.file_size = @book.file.byte_size if @book.file.attached?
 
@@ -60,16 +60,36 @@ class BooksController < ApplicationController
     end
   end
 
+  def edit
+  end
+
+  def update
+    if @book.update(book_params)
+      redirect_to @book, notice: "Book updated successfully"
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
-    @book = Book.find(params[:id])
     @book.destroy
     redirect_to books_path, notice: "Book deleted successfully"
   end
 
   private
 
+  def set_book
+    @book = Book.find(params[:id])
+  end
+
+  def authorize_owner!
+    unless @book.owned_by?(current_user)
+      redirect_to books_path, alert: "You are not authorized to perform this action"
+    end
+  end
+
   def book_params
-    params.require(:book).permit(:title, :author, :description, :file)
+    params.require(:book).permit(:title, :author, :description, :file, :cover_image)
   end
 
   def detect_file_type(file)

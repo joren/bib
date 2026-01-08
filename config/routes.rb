@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   get "login_sent", to: "sessions#sent"
 
   # Books resource
-  resources :books, only: [ :index, :show, :new, :create, :destroy ] do
+  resources :books, only: [ :index, :show, :new, :create, :edit, :update, :destroy ] do
     member do
       get :download
     end
