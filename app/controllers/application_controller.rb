@@ -8,7 +8,13 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   helper_method :current_user, :user_signed_in?
 
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found
+
   private
+
+  def not_found
+    render file: Rails.root.join("public", "404.html"), status: :not_found, layout: false
+  end
 
   def current_user
     @current_user ||= User.find(session[:user_id]) if session[:user_id]

@@ -4,6 +4,7 @@ class Book < ApplicationRecord
 
   validates :title, presence: true
   validates :file_type, inclusion: { in: %w[epub pdf], allow_nil: true }
+  validate :acceptable_file
 
   scope :epubs, -> { where(file_type: "epub") }
   scope :pdfs, -> { where(file_type: "pdf") }
@@ -25,5 +26,19 @@ class Book < ApplicationRecord
 
   def pdf?
     file_type == "pdf"
+  end
+
+  private
+
+  def acceptable_file
+    return unless file.attached?
+
+    unless file.content_type.in?(%w[application/epub+zip application/pdf])
+      errors.add(:file, "must be an EPUB or PDF file")
+    end
+
+    if file.byte_size > 100.megabytes
+      errors.add(:file, "is too large (maximum is 100 MB)")
+    end
   end
 end
