@@ -45,8 +45,8 @@ gem "image_processing", "~> 1.2"
 # ViewComponents for component-based UI [https://viewcomponent.org/]
 gem "view_component"
 
-# EPUB parsing for metadata extraction [https://github.com/skoji/gepub]
-gem "gepub"
+# EPUB parsing for metadata extraction [https://gitlab.com/KitaitiMakoto/epub-parser]
+gem "epub-parser"
 
 # AWS SDK for S3 file storage [https://github.com/aws/aws-sdk-ruby]
 gem "aws-sdk-s3", require: false

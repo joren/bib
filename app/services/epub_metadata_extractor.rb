@@ -1,45 +1,79 @@
+require "epub/parser"
+require "tempfile"
+
 class EpubMetadataExtractor
   def initialize(io)
     @io = io
   end
 
   def extract
-    epub = GEPUB::Book.parse(@io)
+    with_tempfile do |path|
+      epub = EPUB::Parser.parse(path)
 
-    {
-      title: extract_title(epub),
-      author: extract_author(epub),
-      description: extract_description(epub),
-      publisher: epub.publisher&.to_s&.strip.presence,
-      isbn: extract_isbn(epub),
-      language: epub.language&.to_s&.strip.presence || "en",
-      published_on: extract_date(epub)
-    }.tap do |metadata|
-      extract_cover_image(epub, metadata)
+      {
+        title: extract_title(epub),
+        author: extract_author(epub),
+        description: extract_description(epub),
+        publisher: extract_publisher(epub),
+        isbn: extract_isbn(epub),
+        language: extract_language(epub),
+        published_on: extract_date(epub)
+      }.tap do |metadata|
+        extract_cover_image(epub, metadata)
+      end
     end
   end
 
   private
 
+  def with_tempfile
+    tempfile = Tempfile.new(["epub", ".epub"])
+    begin
+      tempfile.binmode
+      @io.rewind if @io.respond_to?(:rewind)
+      IO.copy_stream(@io, tempfile)
+      tempfile.close
+      yield tempfile.path
+    ensure
+      tempfile.close unless tempfile.closed?
+      tempfile.unlink
+    end
+  end
+
   def extract_title(epub)
-    epub.title&.to_s&.strip.presence || "Untitled"
+    epub.metadata.title.to_s.strip.presence || "Untitled"
   end
 
   def extract_author(epub)
-    epub.creator&.to_s&.strip.presence
+    creator = epub.metadata.creators.first
+    creator&.to_s&.strip.presence
   end
 
   def extract_description(epub)
-    epub.description&.to_s&.strip.presence
+    description = epub.metadata.description.to_s.strip
+    return nil if description.blank?
+
+    # Strip HTML tags for plain text description
+    ActionController::Base.helpers.strip_tags(description).strip.presence
+  end
+
+  def extract_publisher(epub)
+    publisher = epub.metadata.publishers.first
+    publisher&.to_s&.strip.presence
   end
 
   def extract_isbn(epub)
-    # EPUB can store ISBN in identifier field
-    epub.identifier_list.find { |id| id[:id] =~ /isbn/i }&.dig(:value)
+    isbn_identifier = epub.metadata.identifiers.find { |id| id.scheme&.to_s&.upcase == "ISBN" }
+    isbn_identifier&.to_s&.strip.presence
+  end
+
+  def extract_language(epub)
+    language = epub.metadata.languages.first
+    language&.to_s&.strip.presence || "en"
   end
 
   def extract_date(epub)
-    date_string = epub.date&.to_s
+    date_string = epub.metadata.date&.to_s
     return nil if date_string.blank?
 
     Date.parse(date_string)
@@ -48,40 +82,19 @@ class EpubMetadataExtractor
   end
 
   def extract_cover_image(epub, metadata)
-    # Access package and manifest
-    package = epub.instance_variable_get(:@package)
-    return unless package
+    cover = epub.cover_image
+    return unless cover
 
-    # Try to find cover ID from metadata (EPUB 2.0 style)
-    oldstyle_meta = package.metadata.oldstyle_meta
-    cover_meta = oldstyle_meta.find { |meta| meta.instance_variable_get(:@attributes)&.dig("name") == "cover" }
-    cover_id = cover_meta&.instance_variable_get(:@attributes)&.dig("content")
-
-    # If cover ID found, get the item from manifest
-    if cover_id
-      items = package.manifest.item_list
-      cover_item = items[cover_id]
-
-      if cover_item
-        metadata[:cover_image_data] = {
-          io: StringIO.new(cover_item.content),
-          filename: cover_item.href,
-          content_type: cover_item.media_type
-        }
-        return
-      end
-    end
-
-    # Fallback: Try EPUB 3.0 style with properties
-    items = package.manifest.item_list
-    cover_item = items.values.find { |item| item.properties&.include?("cover-image") }
-
-    return unless cover_item
+    cover_data = cover.read
+    return if cover_data.nil? || cover_data.empty?
 
     metadata[:cover_image_data] = {
-      io: StringIO.new(cover_item.content),
-      filename: cover_item.href,
-      content_type: cover_item.media_type
+      io: StringIO.new(cover_data),
+      filename: File.basename(cover.href),
+      content_type: cover.media_type.to_s
     }
+  rescue StandardError
+    # Cover extraction failed, continue without cover
+    nil
   end
 end
